@@ -48,6 +48,9 @@ along with termux-elf-cleaner.  If not, see
 #define DF_1_GLOBAL	0x00000002	/* Set RTLD_GLOBAL for this object.  */
 #define DF_1_NODELETE	0x00000008	/* Set RTLD_NODELETE for this object.*/
 
+#define ET_EXEC 2
+#define ET_DYN 3
+
 /* Default to api level 21 unless arg --api-level given  */
 uint8_t supported_dt_flags_1 = (DF_1_NOW | DF_1_GLOBAL);
 int api_level = 21;
@@ -198,6 +201,12 @@ bool process_elf(uint8_t* bytes, size_t elf_file_size, char const* file_name)
 				section_header_entry->sh_type = SHT_NULL;
 		}
 	}
+
+	if (!dry_run && elf_hdr->e_type == ET_EXEC) {
+		printf("%s: Changing e_type from ET_EXEC to ET_DYN\n", PACKAGE_NAME);
+		elf_hdr->e_type = ET_DYN;
+	}
+
 	return true;
 }
 
